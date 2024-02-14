@@ -19,6 +19,8 @@ builder.Services.ConfigureRepositoryManager();
 
 builder.Services.ConfigureServiceManager();
 
+builder.Services.AddAutoMapper(typeof(Program));
+
 builder.Services.ConfigureSqlContext(builder.Configuration);
 
 builder.Services.AddControllers()
@@ -29,11 +31,10 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-//var logger = app.Services.GetRequiredService<ILoggerManager>();
-
-//app.ConfigureExceptionHandler(logger);
-//if (app.Environment.IsProduction())
-//    app.UseHsts();
+var logger = app.Services.GetRequiredService<ILoggerManager>();
+app.ConfigureExceptionHandler(logger);
+if (app.Environment.IsProduction())
+    app.UseHsts();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

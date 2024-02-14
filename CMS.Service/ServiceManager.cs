@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 
 namespace CMS.Service
 {
@@ -16,18 +17,15 @@ namespace CMS.Service
     {
         private readonly Lazy<ICompanyService> _companyService;
         private readonly Lazy<IEmployeeService> _employeeService;
-
         public ServiceManager(IRepositoryManager repositoryManager, ILoggerManager
-       logger)
+        logger, IMapper mapper)
         {
-            _companyService = new Lazy<ICompanyService>(() => new
-          CompanyService(repositoryManager, logger));
-            _employeeService = new Lazy<IEmployeeService>(() => new
-          EmployeeService(repositoryManager, logger));
+            _companyService = new Lazy<ICompanyService>(() =>
+            new CompanyService(repositoryManager, logger, mapper));
+            _employeeService = new Lazy<IEmployeeService>(() =>
+            new EmployeeService(repositoryManager, logger, mapper));
         }
-
         public ICompanyService CompanyService => _companyService.Value;
         public IEmployeeService EmployeeService => _employeeService.Value;
-
     }
 }
