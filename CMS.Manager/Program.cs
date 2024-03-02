@@ -1,6 +1,9 @@
 using CMS.Contracts.Logger;
 using CMS.Manager.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.Options;
 using NLog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +26,11 @@ builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.ConfigureSqlContext(builder.Configuration);
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(config => {
+    config.RespectBrowserAcceptHeader = false;
+    config.ReturnHttpNotAcceptable = true;
+    config.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
+}).AddXmlDataContractSerializerFormatters()
 .AddApplicationPart(typeof(CMS.Manager.Presentation.AssemblyReference).Assembly);
 
 
@@ -88,3 +95,10 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter() =>
+new ServiceCollection().AddLogging().AddMvc().AddNewtonsoftJson()
+.Services.BuildServiceProvider()
+.GetRequiredService<IOptions<MvcOptions>>().Value.InputFormatters
+.OfType<NewtonsoftJsonPatchInputFormatter>().First();
